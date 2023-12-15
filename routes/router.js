@@ -30,6 +30,7 @@ router.get("/productAll",productMaster.productAll)
 router.post("/product",verify,productMaster.product);
 router.post("/createProuductData",productMaster.createProuductData  )
 router.post("/findProuductData",productMaster.findProuductData  )
+router.post("/aggregation", productMaster.aggregation)
 
 
 

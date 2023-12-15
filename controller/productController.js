@@ -7,7 +7,8 @@ cloudinary.config({
   api_key: "361849511236691",
   api_secret: "mltoKlZetZWH5NiokGqLbYkkjtw",
 });
-const productMaster = {
+const 
+productMaster = {
   product: async (req, res) => {
     try {
       const file = req.files.image;
@@ -85,7 +86,7 @@ const productMaster = {
         .json({success:false,data:[], msg: "_id is required" });
        
       }
-      const findData= await ProductPrechages.findById(_id).populate({path:"productId", select:"image realprice"}).populate({path:'userId', select:"name email"})
+      const findData= await ProductPrechages.findById(_id).populate({path:"productId", select:"image realprice"}).populate({path:'userId', select:"name email"})  //select which key you wanted 
       if(!findData){
         return res
         .status(400)
@@ -100,5 +101,44 @@ const productMaster = {
       res.status(400).json({ msg: error.message });
     }
   },
+  aggregation: async(req,res)=>{
+    const {brand}= req.body;
+    try {
+      const findData= await ProductModel.aggregate([
+        {
+          $match: {//match is used  for the filter  
+            brand
+          },
+
+        },{
+          $group:{
+            _id: '$fakeprice',  //id with group based on the key 
+            data: {
+              $push: '$$ROOT'  //get all data 
+            }
+          }
+        },
+        {
+          $project:{  // which data you wanted, 
+            _id:true,  // use true and false | 0 or 1
+            'data.brand':true // use true and false | 0 or 1
+          }
+        }
+      ])
+      if(!findData){
+        return res
+        .status(400)
+        .json({success:false,data:[], msg: "data not find" });
+      }
+      res.status(200).send({
+        status:true,
+        message:"data is found",
+        data:findData
+      })
+
+    } catch (error) {
+      res.status(400).json({ msg: error.message });
+    }
+  }
 };
 module.exports = productMaster;
